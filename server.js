@@ -1,6 +1,7 @@
-const got = require('got');
+import got from 'got';
+import express from 'express';
 
-const APIBasePath = `https://nflarrest.com/api/v1`;
+const APIBasePath = 'https://nflarrest.com/api/v1';
 
 function getTeamArrests(id) {
 	console.log('getting specific team arrests');
@@ -14,20 +15,22 @@ function getAllTeamArrests() {
 
 function search(query) {
 	console.log('searching');
-	return got(`${APIBasePath}/team/search/?term=${query}`)
+	return got(`${APIBasePath}/team/search/?term=${query}`);
 }
 
 async function mainFunction(query) {
-	if (!query) return {};
+	if (!query) {
+		return {};
+	}
 
 	const allTeamArrests = getAllTeamArrests().then(rawTeamArrestsResponse => {
 		return JSON.parse(rawTeamArrestsResponse.body);
 	});
 
-	const allTeamDetails = search(query).then(async (rawResponse) => {
+	const allTeamDetails = search(query).then(async rawResponse => {
 		const response = JSON.parse(rawResponse.body);
 
-		if (!response.length) {
+		if (response.length <= 0) {
 			return;
 		}
 
@@ -35,15 +38,15 @@ async function mainFunction(query) {
 		const rawArrestsResponse = await getTeamArrests(id);
 
 		const arrestsResponse = JSON.parse(rawArrestsResponse.body);
-		const arrests = arrestsResponse.map((arrest) => {
-			//Name as name, Date as date, Position as position, Category as category, Outcome as outcome
+		const arrests = arrestsResponse.map(arrest => {
+			// Name as name, Date as date, Position as position, Category as category, Outcome as outcome
 			return {
 				name: arrest.Name,
 				date: arrest.Date,
 				position: arrest.Position,
 				category: arrest.Category,
 				outcome: arrest.Outcome
-			}
+			};
 		});
 
 		return {
@@ -51,11 +54,11 @@ async function mainFunction(query) {
 			id,
 			city,
 			arrests,
-			totalArrests: arrests.length,
+			totalArrests: arrests.length
 		};
-	})
+	});
 
-	const [allTeamArrestsResults, allTeamDetailsResult] = await Promise.all([allTeamArrests, allTeamDetails])
+	const [allTeamArrestsResults, allTeamDetailsResult] = await Promise.all([allTeamArrests, allTeamDetails]);
 
 	if (!allTeamDetailsResult) {
 		return [];
@@ -67,15 +70,14 @@ async function mainFunction(query) {
 	};
 }
 
-const express = require('express')
-const app = express()
-const port = 3000
+const app = express();
+const port = 3000;
 
-app.get('/search', async (req, res) => {
-	// e.g. Indianapolis or Denver
-	const query = req.query.query;
-	const response = await mainFunction(query);
-	res.json(response);
+app.get('/search', async (request, response) => {
+	// E.g. Indianapolis or Denver
+	const {query} = request.query;
+	const result = await mainFunction(query);
+	response.json(result);
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
