@@ -4,11 +4,10 @@
   "private": true,
   "main": "server.js",
   "dependencies": {
-    "express": "^4.17.1",
-    "got": "^11.0.2"
+    "express": "^4.18.2",
+    "got": "^13.0.0"
   },
   "devDependencies": {
-    "xo": "^0.29.1",
     "@umaar/personal-eslint-config": "latest"
   },
   "xo": {

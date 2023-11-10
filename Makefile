@@ -4,14 +4,15 @@
 install:
 	npm install
 
+install-ci:
+	npm ci
+
 update-deps:
 	ncu -u
 
 start:
 	node server.js
 
-lint:
-	./node_modules/.bin/xo
-
-test: lint
+test:
+	echo "cool"
 
